@@ -354,3 +354,9 @@ document.getElementById('checkPage').addEventListener('click', async () => {
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
   }
+
+
+
+// TODO
+// 1. Extend this extension to save the report.html
+// 2. Implement a function to chose a element and run the duplciate id checker on that element and it's child only

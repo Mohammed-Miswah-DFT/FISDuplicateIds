@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
-    "name": "Duplicate ID Checker",
-    "version": "1.0",
+    "name": "FIS Duplicate ID Checker",
+    "version": "2.0",
     "description": "Checks current page for duplicate IDs and generates a modern report",
     "permissions": ["activeTab", "scripting"],
     "action": {
@@ -10,5 +10,11 @@
     "web_accessible_resources": [{
       "resources": ["report.html"],
       "matches": ["<all_urls>"]
-    }]
+    }],
+    "icons": {
+        "16": "/icons/icon16.png",
+        "32": "/icons/icon32.png",
+        "48": "/icons/icon48.png",
+        "128": "/icons/icon128.png"
+      }
   }
