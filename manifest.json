@@ -2,9 +2,13 @@
     "manifest_version": 3,
     "name": "Duplicate ID Checker",
     "version": "1.0",
-    "description": "Checks current page for duplicate IDs",
+    "description": "Checks current page for duplicate IDs and generates a modern report",
     "permissions": ["activeTab", "scripting"],
     "action": {
       "default_popup": "popup.html"
-    }
+    },
+    "web_accessible_resources": [{
+      "resources": ["report.html"],
+      "matches": ["<all_urls>"]
+    }]
   }

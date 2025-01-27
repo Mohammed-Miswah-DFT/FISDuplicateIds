@@ -1,38 +1,32 @@
+// popup.html
 <!DOCTYPE html>
 <html>
 <head>
   <style>
     body { 
-      width: 400px; 
-      padding: 10px; 
-      font-family: Arial, sans-serif;
-    }
-    .duplicate { 
-      margin: 10px 0;
-      padding: 10px;
-      background: #fff3e0;
-      border-left: 4px solid #ff9800;
-    }
-    .no-duplicates {
-      color: #2e7d32;
-      font-weight: bold;
+      width: 300px; 
+      padding: 16px; 
+      font-family: 'Segoe UI', system-ui, sans-serif;
     }
     button {
-      background: #1976d2;
+      width: 100%;
+      background: #0f172a;
       color: white;
       border: none;
-      padding: 8px 16px;
+      padding: 12px 24px;
       cursor: pointer;
-      border-radius: 4px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.2s;
     }
     button:hover {
-      background: #1565c0;
+      background: #1e293b;
     }
   </style>
 </head>
 <body>
-  <button id="checkPage">Check Current Page</button>
-  <div id="results"></div>
+  <button id="checkPage">Generate Duplicate ID Report</button>
   <script src="popup.js"></script>
 </body>
 </html>
