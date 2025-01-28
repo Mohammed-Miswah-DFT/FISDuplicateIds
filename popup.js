@@ -1,99 +1,110 @@
-document.getElementById('checkPage').addEventListener('click', async () => {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    
-    const results = await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      function: checkForDuplicateIds,
-    });
-  
-    openReport(results[0].result);
+document.getElementById("checkPage").addEventListener("click", async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+  const results = await chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    function: checkForDuplicateIds,
   });
-  
-  function checkForDuplicateIds() {
-    const elements = document.querySelectorAll('[id]');
-    const idMap = new Map();
-    const duplicates = {};
-    const pageInfo = {
-      title: document.title,
-      url: window.location.href,
-      timestamp: new Date().toLocaleString(),
-      totalElements: document.getElementsByTagName('*').length,
-      totalIds: elements.length
-    };
-  
-    function getFullPath(element) {
-      const path = [];
-      while (element && element.nodeType === Node.ELEMENT_NODE) {
-        let selector = element.nodeName.toLowerCase();
-        if (element.id) {
-          selector += `#${element.id}`;
-        } else if (element.className) {
-          selector += `.${Array.from(element.classList).join('.')}`;
-        }
-        
-        const siblings = element.parentNode ? Array.from(element.parentNode.children) : [];
-        if (siblings.length > 1) {
-          const index = siblings.indexOf(element) + 1;
-          selector += `:nth-child(${index})`;
-        }
-        
-        path.unshift(selector);
-        element = element.parentNode;
+
+  openReport(results[0].result);
+});
+
+
+document.getElementById("nameOfReport").addEventListener("input", function (evt) {
+    localStorage.setItem("name", this.value);
+});
+
+function checkForDuplicateIds() {
+  const elements = document.querySelectorAll("[id]");
+  const idMap = new Map();
+  const duplicates = {};
+  const pageInfo = {
+    title: document.title,
+    url: window.location.href,
+    timestamp: new Date().toLocaleString(),
+    totalElements: document.getElementsByTagName("*").length,
+    totalIds: elements.length,
+  };
+
+  function getFullPath(element) {
+    const path = [];
+    while (element && element.nodeType === Node.ELEMENT_NODE) {
+      let selector = element.nodeName.toLowerCase();
+      if (element.id) {
+        selector += `#${element.id}`;
+      } else if (element.className) {
+        selector += `.${Array.from(element.classList).join(".")}`;
       }
-      return path.join(' > ');
+
+      const siblings = element.parentNode
+        ? Array.from(element.parentNode.children)
+        : [];
+      if (siblings.length > 1) {
+        const index = siblings.indexOf(element) + 1;
+        selector += `:nth-child(${index})`;
+      }
+
+      path.unshift(selector);
+      element = element.parentNode;
     }
-  
-    elements.forEach(el => {
-      const id = el.id;
-      if (!idMap.has(id)) {
-        idMap.set(id, []);
-      }
-      
-      const styles = window.getComputedStyle(el);
-      idMap.get(id).push({
-        tagName: el.tagName.toLowerCase(),
-        cssPath: getFullPath(el),
-        classes: Array.from(el.classList),
-        attributes: Array.from(el.attributes)
-          .filter(attr => attr.name !== 'id' && attr.name !== 'class')
-          .map(attr => ({name: attr.name, value: attr.value})),
-        innerHTML: el.innerHTML.substring(0, 100),
-        textContent: el.textContent.trim().substring(0, 100),
-        dimensions: {
-          width: el.offsetWidth,
-          height: el.offsetHeight,
-          x: el.getBoundingClientRect().x,
-          y: el.getBoundingClientRect().y
-        },
-        styles: {
-          backgroundColor: styles.backgroundColor,
-          color: styles.color,
-          display: styles.display,
-          position: styles.position,
-          visibility: styles.visibility
-        }
-      });
-    });
-  
-    idMap.forEach((elements, id) => {
-      if (elements.length > 1) {
-        duplicates[id] = elements;
-      }
-    });
-  
-    return { duplicates, pageInfo };
+    return path.join(" > ");
   }
-  
-  function openReport(data) {
-    const reportHTML = `
+
+  elements.forEach((el) => {
+    const id = el.id;
+    if (!idMap.has(id)) {
+      idMap.set(id, []);
+    }
+
+    const styles = window.getComputedStyle(el);
+    idMap.get(id).push({
+      tagName: el.tagName.toLowerCase(),
+      cssPath: getFullPath(el),
+      classes: Array.from(el.classList),
+      attributes: Array.from(el.attributes)
+        .filter((attr) => attr.name !== "id" && attr.name !== "class")
+        .map((attr) => ({ name: attr.name, value: attr.value })),
+      innerHTML: el.innerHTML.substring(0, 100),
+      textContent: el.textContent.trim().substring(0, 100),
+      dimensions: {
+        width: el.offsetWidth,
+        height: el.offsetHeight,
+        x: el.getBoundingClientRect().x,
+        y: el.getBoundingClientRect().y,
+      },
+      styles: {
+        backgroundColor: styles.backgroundColor,
+        color: styles.color,
+        display: styles.display,
+        position: styles.position,
+        visibility: styles.visibility,
+      },
+    });
+  });
+
+  idMap.forEach((elements, id) => {
+    if (elements.length > 1) {
+      duplicates[id] = elements;
+    }
+  });
+
+  return { duplicates, pageInfo };
+}
+
+{/* <script src="https://cdnjs.cloudflare.com/ajax/libs/prismjs/1.29.0/prism.min.js"></script> */}
+{/* <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prismjs/1.29.0/themes/prism.min.css"> */}
+  {/* <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> */}
+
+function openReport(data) {
+  const reportHTML = `
   <!DOCTYPE html>
   <html>
   <head>
     <title>Duplicate ID Report</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prismjs/1.29.0/prism.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prismjs/1.29.0/themes/prism.min.css">
+   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <script src="scripts.js"></script>
+
     <style>
       :root {
         --primary: #0f172a;
@@ -252,6 +263,66 @@ document.getElementById('checkPage').addEventListener('click', async () => {
         margin-bottom: 0.25rem;
         display: inline-block;
       }
+
+      .duplicate-item {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .duplicate-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    .duplicate-header:hover {
+      background: var(--background);
+      border-radius: 8px;
+    }
+    
+    .duplicate-content {
+      transition: max-height 0.3s ease-out;
+      overflow: hidden;
+    }
+    
+    .duplicate-content.collapsed {
+      max-height: 0;
+    }
+    
+    .duplicate-header .toggle-icon {
+      margin-right: 1rem;
+      transition: transform 0.3s ease;
+    }
+    
+    .duplicate-header .toggle-icon.collapsed {
+      transform: rotate(-90deg);
+    }
+    
+    .expand-all-button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+      transition: background 0.2s;
+    }
+    
+    .expand-all-button:hover {
+      background: var(--secondary);
+    }
     </style>
   </head>
   <body>
@@ -281,17 +352,23 @@ document.getElementById('checkPage').addEventListener('click', async () => {
           </div>
           <div class="stat-card">
             <div class="stat-label">Duplicate IDs</div>
-            <div class="stat-value ${Object.keys(data.duplicates).length > 0 ? 'warning' : ''}">${Object.keys(data.duplicates).length}</div>
+            <div class="stat-value ${
+              Object.keys(data.duplicates).length > 0 ? "warning" : ""
+            }">${Object.keys(data.duplicates).length}</div>
           </div>
         </div>
       </div>
-  
-      ${Object.entries(data.duplicates).map(([id, elements]) => `
-        <div class="duplicate-item">
-          <div class="duplicate-header">
-            <div class="duplicate-id">#${id}</div>
-            <div class="duplicate-count">${elements.length} occurrences</div>
-          </div>
+
+    <button class="expand-all-button" onclick="toggleAll()">Expand All</button>
+
+     ${Object.entries(data.duplicates).map(([id, elements]) => `
+      <div class="duplicate-item">
+        <div class="duplicate-header" onclick="toggleCollapse(this)">
+          <i class="fas fa-chevron-down toggle-icon"></i>
+          <div class="duplicate-id">#${id}</div>
+          <div class="duplicate-count">${elements.length} occurrences</div>
+        </div>
+        <div class="duplicate-content collapsed">
           ${elements.map((el, index) => `
             <div class="instance">
               <div class="instance-header">Instance ${index + 1}</div>
@@ -344,18 +421,67 @@ document.getElementById('checkPage').addEventListener('click', async () => {
             </div>
           `).join('')}
         </div>
-      `).join('')}
-    </div>
+      </div>
+    `).join('')}
+  </div>
+  <script>
+  function toggleCollapse(header) {
+    const content = header.nextElementSibling;
+    const icon = header.querySelector('.toggle-icon');
+    
+    content.classList.toggle('collapsed');
+    icon.classList.toggle('collapsed');
+    
+    updateExpandAllButton();
+  }
+  
+  function toggleAll() {
+    const button = document.querySelector('.expand-all-button');
+    const contents = document.querySelectorAll('.duplicate-content');
+    const icons = document.querySelectorAll('.toggle-icon');
+    const isExpanding = button.textContent === 'Expand All';
+    
+    contents.forEach(content => {
+      if (isExpanding) {
+        content.classList.remove('collapsed');
+      } else {
+        content.classList.add('collapsed');
+      }
+    });
+    
+    icons.forEach(icon => {
+      if (isExpanding) {
+        icon.classList.remove('collapsed');
+      } else {
+        icon.classList.add('collapsed');
+      }
+    });
+    
+    button.textContent = isExpanding ? 'Collapse All' : 'Expand All';
+  }
+  
+  function updateExpandAllButton() {
+    const button = document.querySelector('.expand-all-button');
+    const contents = document.querySelectorAll('.duplicate-content');
+    const allCollapsed = Array.from(contents).every(content => 
+      content.classList.contains('collapsed')
+    );
+    
+    button.textContent = allCollapsed ? 'Expand All' : 'Collapse All';
+  }
+    </script>
   </body>
   </html>
   `;
-  
-    const blob = new Blob([reportHTML], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
-  }
 
-
+  const blob = new Blob([reportHTML], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = localStorage.getItem("name") ? JSON.stringify(localStorage.getItem("name"))+".html" : "Reportname.html";
+  a.click();
+  // window.open(url, "_blank");
+}
 
 // TODO
 // 1. Extend this extension to save the report.html
