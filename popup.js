@@ -10,9 +10,9 @@ document.getElementById("checkPage").addEventListener("click", async () => {
 });
 
 
-document.getElementById('highlightClassButton').addEventListener('click', async () => {
-  const className = document.getElementById('classInput').value.trim();
-  if (!className) {
+document.getElementById('highlightIdButton').addEventListener('click', async () => {
+  const elementId = document.getElementById('classInput').value.trim();
+  if (!elementId) {
     alert('Please enter a class name');
     return;
   }
@@ -31,8 +31,8 @@ document.getElementById('highlightClassButton').addEventListener('click', async 
 
   chrome.tabs.sendMessage(
     tab.id, 
-    { action: 'highlightByClass', className }, 
-    (response) => handleClassResponse(response, className)
+    { action: 'highlightByClass', elementId }, 
+    (response) => handleClassResponse(response, elementId)
   );
 });
 
@@ -60,7 +60,7 @@ document.getElementById('highlightClassButton').addEventListener('click', async 
     if (response?.success) {
       response.count > 0 ?
         alert(`Found ${response.count} elements with class "${className}"`) :
-        alert(`No elements found with class "${className}"`);
+        alert(`No elements found with id "${className}"`);
     }
   }
 

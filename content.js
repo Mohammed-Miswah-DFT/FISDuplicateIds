@@ -33,12 +33,16 @@ function findDuplicateIds() {
   }
 
 
-  function highlightByClassName(className) {
-    resetHighlights();
-    const elements = document.getElementsByClassName(className);
+  function highlightById(elementId) {
+    // resetHighlights();
+    const elements = document.querySelectorAll(`#${elementId}`);
+    // alert(JSON.stringify(elements))
     const count = elements.length;
   
-    if (count === 0) return 0;
+    if (count == 0) {
+        alert(count);
+        return 0;
+    }
   
     Array.from(elements).forEach(element => {
     element.style.border = '2px solid red'; // Highlight with a red border
@@ -55,7 +59,7 @@ function findDuplicateIds() {
       sendResponse({ success: true, hasDuplicates });
     }
     else if (request.action === 'highlightByClass') {
-      const count = highlightByClassName(request.className);
+      const count = highlightById(request.elementId);
       sendResponse({ success: true, count });
     }
   });
