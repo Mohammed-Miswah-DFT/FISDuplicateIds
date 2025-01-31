@@ -10,10 +10,6 @@ document.getElementById("checkPage").addEventListener("click", async () => {
 });
 
 
-document.getElementById("nameOfReport").addEventListener("input", function (evt) {
-    localStorage.setItem("name", this.value);
-});
-
 function checkForDuplicateIds() {
   const elements = document.querySelectorAll("[id]");
   const idMap = new Map();
@@ -91,9 +87,6 @@ function checkForDuplicateIds() {
   return { duplicates, pageInfo };
 }
 
-{/* <script src="https://cdnjs.cloudflare.com/ajax/libs/prismjs/1.29.0/prism.min.js"></script> */}
-{/* <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prismjs/1.29.0/themes/prism.min.css"> */}
-  {/* <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> */}
 
 function openReport(data) {
   const reportHTML = `
@@ -535,7 +528,7 @@ function openReport(data) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = localStorage.getItem("name") ? JSON.stringify(localStorage.getItem("name"))+".html" : "Reportname.html";
+  a.download = `DuplicateIdReport.html`;
   a.click();
   // window.open(url, "_blank");
 }
