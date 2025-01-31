@@ -10,6 +10,60 @@ document.getElementById("checkPage").addEventListener("click", async () => {
 });
 
 
+document.getElementById('highlightClassButton').addEventListener('click', async () => {
+  const className = document.getElementById('classInput').value.trim();
+  if (!className) {
+    alert('Please enter a class name');
+    return;
+  }
+
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      files: ['content.js']
+    });
+  } catch (error) {
+    alert('Failed to inject content script');
+    return;
+  }
+
+  chrome.tabs.sendMessage(
+    tab.id, 
+    { action: 'highlightByClass', className }, 
+    (response) => handleClassResponse(response, className)
+  );
+});
+
+
+  // Response handlers
+  function handleResponse(response) {
+    if (chrome.runtime.lastError) {
+      alert('Error: Content script not responding');
+      return;
+    }
+    
+    if (response?.success) {
+      response.hasDuplicates ?
+        alert('Duplicate IDs found and highlighted!') :
+        alert('No duplicate IDs found');
+    }
+  }
+  
+  function handleClassResponse(response, className) {
+    if (chrome.runtime.lastError) {
+      alert('Error: Content script not responding');
+      return;
+    }
+  
+    if (response?.success) {
+      response.count > 0 ?
+        alert(`Found ${response.count} elements with class "${className}"`) :
+        alert(`No elements found with class "${className}"`);
+    }
+  }
+
 document.getElementById('highlightButton').addEventListener('click', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 

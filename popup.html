@@ -1,89 +1,114 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chrome Extension</title>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
   <style>
     body { 
-      width: 300px; 
-      padding: 16px; 
+      width: 320px; 
+      padding: 20px; 
       font-family: 'Segoe UI', system-ui, sans-serif;
-    }
-    button {
-      width: 100%;
-      background: #0f172a;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
       color: white;
+      text-align: center;
+      border-radius: 10px;
+    }
+
+    button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
       border: none;
-      padding: 12px 24px;
+      padding: 12px;
       cursor: pointer;
       border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      transition: 0.3s;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    button i {
+      font-size: 18px;
+    }
+
+    #checkPage {
+      background: #4a90e2;
+      color: white;
+    }
+
+    #checkPage:hover {
+      background: #357abd;
+      transform: scale(1.05);
+    }
+
+    #highlightButton {
+      margin-top: 12px;
+      background: #ff4d4d;
+      color: white;
+    }
+
+    #highlightButton:hover {
+      background: #e60000;
+      transform: scale(1.05);
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
       font-size: 14px;
-      font-weight: 500;
-      transition: background 0.2s;
+      text-align: center;
+      outline: none;
+      color: #333;
+      background: #f8f8f8;
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
     }
-    button:hover {
-      background: #1e293b;
-      background-color: #45a049;
+
+    input:focus {
+      background: #ffffff;
+      box-shadow: 0 0 8px #70a1ff;
     }
 
-.duplicate-id-highlight {
-  position: relative;
-  z-index: 9999;
-  border-radius: 4px;
-  animation: highlight-pulse 2s ease-in-out infinite;
-}
+    #highlightClassButton {
+      background: #66bb6a;
+      padding: 10px 12px;
+      white-space: nowrap;
+      color: white;
+    }
 
-.duplicate-id-highlight::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  z-index: -1;
-  background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
-  border-radius: 6px;
-  opacity: 0.9;
-}
-
-/* Badge showing duplicate count */
-.duplicate-id-badge {
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  background: #ff4757;
-  color: white;
-  font-size: 10px;
-  font-weight: bold;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  animation: badge-pop 0.3s ease-out;
-}
-
-@keyframes highlight-pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.005); }
-  100% { transform: scale(1); }
-}
-
-@keyframes badge-pop {
-  from {
-    transform: scale(0);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
+    #highlightClassButton:hover {
+      background: #43a047;
+      transform: scale(1.05);
+    }
   </style>
 </head>
 <body>
-  <button id="checkPage">Generate Duplicate ID Report</button>
-  <button id="highlightButton">Highlight Duplicate IDs</button>
+  <button id="checkPage">
+    <i class="fas fa-file-alt"></i> Generate Duplicate ID Report
+  </button>
+  <button id="highlightButton">
+    <i class="fas fa-highlighter"></i> Highlight Duplicate IDs
+  </button>
+
+  <div class="input-group">
+    <input type="text" id="classInput" placeholder="Enter ID">
+    <button id="highlightClassButton">
+      <i class="fas fa-lightbulb"></i> Highlight ID
+    </button>
+  </div>
+
   <script src="popup.js"></script>
 </body>
 </html>
