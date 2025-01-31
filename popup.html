@@ -21,11 +21,69 @@
     }
     button:hover {
       background: #1e293b;
+      background-color: #45a049;
     }
+
+.duplicate-id-highlight {
+  position: relative;
+  z-index: 9999;
+  border-radius: 4px;
+  animation: highlight-pulse 2s ease-in-out infinite;
+}
+
+.duplicate-id-highlight::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  z-index: -1;
+  background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+  border-radius: 6px;
+  opacity: 0.9;
+}
+
+/* Badge showing duplicate count */
+.duplicate-id-badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: #ff4757;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  animation: badge-pop 0.3s ease-out;
+}
+
+@keyframes highlight-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.005); }
+  100% { transform: scale(1); }
+}
+
+@keyframes badge-pop {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
   </style>
 </head>
 <body>
   <button id="checkPage">Generate Duplicate ID Report</button>
+  <button id="highlightButton">Highlight Duplicate IDs</button>
   <script src="popup.js"></script>
 </body>
 </html>

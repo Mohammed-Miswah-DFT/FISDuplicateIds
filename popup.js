@@ -10,6 +10,29 @@ document.getElementById("checkPage").addEventListener("click", async () => {
 });
 
 
+document.getElementById('highlightButton').addEventListener('click', async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+  // Inject the content script
+  await chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    files: ['content.js']
+  });
+
+  // Send the message after injecting the script
+  chrome.tabs.sendMessage(tab.id, { action: 'highlightDuplicates' }, (response) => {
+    if (response && response.success) {
+      if (response.hasDuplicates) {
+        alert('Duplicate IDs found and highlighted!');
+      } else {
+        alert('No duplicate IDs found.');
+      }
+    } else {
+      alert('Failed to highlight duplicate IDs.');
+    }
+  });
+});
+
 function checkForDuplicateIds() {
   const elements = document.querySelectorAll("[id]");
   const idMap = new Map();
