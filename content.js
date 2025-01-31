@@ -24,7 +24,7 @@ function findDuplicateIds() {
   
     duplicates.forEach(([id, elements]) => {
       elements.forEach((element) => {
-        element.style.border = '2px solid red';
+        element.style.border = '2px dotted red';
         element.style.backgroundColor = 'yellow';
       });
     });
@@ -44,7 +44,7 @@ function findDuplicateIds() {
     }
   
     Array.from(elements).forEach(element => {
-    element.style.border = '2px solid red'; // Highlight with a red border
+    element.style.border = '2px dotted red'; // Highlight with a red border
     element.style.backgroundColor = 'yellow'; // Add a background color
     });
   
