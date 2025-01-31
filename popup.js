@@ -9,83 +9,95 @@ document.getElementById("checkPage").addEventListener("click", async () => {
   openReport(results[0].result);
 });
 
+document
+  .getElementById("highlightIdButton")
+  .addEventListener("click", async () => {
+    const elementId = document.getElementById("classInput").value.trim();
+    if (!elementId) {
+      alert("Please enter a ID");
+      return;
+    }
 
-document.getElementById('highlightIdButton').addEventListener('click', async () => {
-  const elementId = document.getElementById('classInput').value.trim();
-  if (!elementId) {
-    alert('Please enter a ID');
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ["content.js"],
+      });
+    } catch (error) {
+      alert("Failed to inject content script");
+      return;
+    }
+
+    chrome.tabs.sendMessage(
+      tab.id,
+      { action: "highlightByClass", elementId },
+      (response) => handleClassResponse(response, elementId)
+    );
+  });
+
+// Response handlers
+function handleResponse(response) {
+  if (chrome.runtime.lastError) {
+    alert("Error: Content script not responding");
     return;
   }
 
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (response?.success) {
+    response.hasDuplicates
+      ? alert("Duplicate IDs found and highlighted!")
+      : alert("No duplicate IDs found");
+  }
+}
 
-  try {
+function handleClassResponse(response, className) {
+  if (chrome.runtime.lastError) {
+    alert("Error: Content script not responding");
+    return;
+  }
+
+  if (response?.success) {
+    response.count > 0
+      ? alert(`Found ${response.count} elements with class "${className}"`)
+      : alert(`No elements found with id "${className}"`);
+  }
+}
+
+document
+  .getElementById("highlightButton")
+  .addEventListener("click", async () => {
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+
+    // Inject the content script
     await chrome.scripting.executeScript({
       target: { tabId: tab.id },
-      files: ['content.js']
+      files: ["content.js"],
     });
-  } catch (error) {
-    alert('Failed to inject content script');
-    return;
-  }
 
-  chrome.tabs.sendMessage(
-    tab.id, 
-    { action: 'highlightByClass', elementId }, 
-    (response) => handleClassResponse(response, elementId)
-  );
-});
-
-
-  // Response handlers
-  function handleResponse(response) {
-    if (chrome.runtime.lastError) {
-      alert('Error: Content script not responding');
-      return;
-    }
-    
-    if (response?.success) {
-      response.hasDuplicates ?
-        alert('Duplicate IDs found and highlighted!') :
-        alert('No duplicate IDs found');
-    }
-  }
-  
-  function handleClassResponse(response, className) {
-    if (chrome.runtime.lastError) {
-      alert('Error: Content script not responding');
-      return;
-    }
-  
-    if (response?.success) {
-      response.count > 0 ?
-        alert(`Found ${response.count} elements with class "${className}"`) :
-        alert(`No elements found with id "${className}"`);
-    }
-  }
-
-document.getElementById('highlightButton').addEventListener('click', async () => {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
-  // Inject the content script
-  await chrome.scripting.executeScript({
-    target: { tabId: tab.id },
-    files: ['content.js']
-  });
-
-  // Send the message after injecting the script
-  chrome.tabs.sendMessage(tab.id, { action: 'highlightDuplicates' }, (response) => {
-    if (response && response.success) {
-      if (response.hasDuplicates) {
-        alert('Duplicate IDs found and highlighted!');
-      } else {
-        alert('No duplicate IDs found.');
+    // Send the message after injecting the script
+    chrome.tabs.sendMessage(
+      tab.id,
+      { action: "highlightDuplicates" },
+      (response) => {
+        if (response && response.success) {
+          if (response.hasDuplicates) {
+            alert("Duplicate IDs found and highlighted!");
+          } else {
+            alert("No duplicate IDs found.");
+          }
+        } else {
+          alert("Failed to highlight duplicate IDs.");
+        }
       }
-    } else {
-      alert('Failed to highlight duplicate IDs.');
-    }
+    );
   });
-});
 
 function checkForDuplicateIds() {
   const elements = document.querySelectorAll("[id]");
@@ -163,7 +175,6 @@ function checkForDuplicateIds() {
 
   return { duplicates, pageInfo };
 }
-
 
 function openReport(data) {
   const reportHTML = `
@@ -441,6 +452,24 @@ function openReport(data) {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-20px); }
     }
+    
+    .copy-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-left: auto;
+  }
+  .copy-button:hover {
+    background-color: #45a049;
+  }
     </style>
   </head>
   <body>
@@ -470,16 +499,16 @@ function openReport(data) {
           </div>
           <div class="stat-card">
             <div class="stat-label">Duplicate IDs</div>
-            <div class="stat-value ${
-              Object.keys(data.duplicates).length > 0 ? "warning" : ""
-            }">${Object.keys(data.duplicates).length}</div>
+            <div class="stat-value ${Object.keys(data.duplicates).length > 0 ? "warning" : ""
+    }">${Object.keys(data.duplicates).length}</div>
           </div>
         </div>
       </div>
 
     <button class="expand-all-button" onclick="toggleAll()">Expand All</button>
 
-    ${Object.keys(data.duplicates).length === 0 ? `
+    ${Object.keys(data.duplicates).length === 0
+      ? `
       <div class="celebration">
         <h2 class="celebration-title">Perfect! No Duplicate IDs Found</h2>
         <div class="emoji">
@@ -487,56 +516,81 @@ function openReport(data) {
         </div>
         <p class="celebration-text">Your page's ID attributes are unique and well-structured!</p>
       </div>
-    ` :     
-     Object.entries(data.duplicates).map(([id, elements]) => `
+    `
+      : Object.entries(data.duplicates)
+        .map(
+          ([id, elements]) => `
       <div class="duplicate-item">
         <div class="duplicate-header" onclick="toggleCollapse(this)">
           <i class="fas fa-chevron-down toggle-icon"></i>
           <div class="duplicate-id">#${id}</div>
           <div class="duplicate-count">${elements.length} occurrences</div>
+          <button class="copy-button" onclick="copyToClipboard('${id}')">Copy ID</button>
         </div>
         <div class="duplicate-content collapsed">
-          ${elements.map((el, index) => `
+          ${elements
+              .map(
+                (el, index) => `
             <div class="instance">
               <div class="instance-header">Instance ${index + 1}</div>
               <div class="instance-detail">
                 <span class="detail-label">Element</span>
-                <span class="detail-value"><code class="code">${el.tagName}</code></span>
+                <span class="detail-value"><code class="code">${el.tagName
+                  }</code></span>
               </div>
               <div class="instance-detail">
                 <span class="detail-label">CSS Path</span>
                 <span class="detail-value">${el.cssPath}</span>
               </div>
-              ${el.classes.length ? `
+              ${el.classes.length
+                    ? `
                 <div class="instance-detail">
                   <span class="detail-label">Classes</span>
                   <span class="detail-value">
-                    ${el.classes.map(cls => `<span class="pill">${cls}</span>`).join('')}
+                    ${el.classes
+                      .map((cls) => `<span class="pill">${cls}</span>`)
+                      .join("")}
                   </span>
                 </div>
-              ` : ''}
-              ${el.attributes.length ? `
+              `
+                    : ""
+                  }
+              ${el.attributes.length
+                    ? `
                 <div class="instance-detail">
                   <span class="detail-label">Attributes</span>
                   <span class="detail-value">
-                    ${el.attributes.map(attr => `<span class="pill">${attr.name}="${attr.value}"</span>`).join('')}
+                    ${el.attributes
+                      .map(
+                        (attr) =>
+                          `<span class="pill">${attr.name}="${attr.value}"</span>`
+                      )
+                      .join("")}
                   </span>
                 </div>
-              ` : ''}
+              `
+                    : ""
+                  }
               <div class="instance-detail">
                 <span class="detail-label">Position</span>
-                <span class="detail-value">x: ${Math.round(el.dimensions.x)}, y: ${Math.round(el.dimensions.y)}</span>
+                <span class="detail-value">x: ${Math.round(
+                    el.dimensions.x
+                  )}, y: ${Math.round(el.dimensions.y)}</span>
               </div>
               <div class="instance-detail">
                 <span class="detail-label">Size</span>
-                <span class="detail-value">${el.dimensions.width}×${el.dimensions.height}px</span>
+                <span class="detail-value">${el.dimensions.width}×${el.dimensions.height
+                  }px</span>
               </div>
-              ${el.textContent ? `
+              ${el.textContent
+                    ? `
                 <div class="instance-detail">
                   <span class="detail-label">Content</span>
                   <span class="detail-value">${el.textContent}</span>
                 </div>
-              ` : ''}
+              `
+                    : ""
+                  }
               <div class="instance-detail">
                 <span class="detail-label">Visibility</span>
                 <span class="detail-value">
@@ -546,10 +600,15 @@ function openReport(data) {
                 </span>
               </div>
             </div>
-          `).join('')}
+          `
+              )
+              .join("")}
         </div>
       </div>
-    `).join('')}
+    `
+        )
+        .join("")
+    }
   </div>
   <script>
   function toggleCollapse(header) {
@@ -596,6 +655,15 @@ function openReport(data) {
     
     button.textContent = allCollapsed ? 'Expand All' : 'Collapse All';
   }
+
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('ID copied to clipboard');
+      }).catch(err => {
+        console.error('Failed to copy text: ', err);
+      });
+}
     </script>
   </body>
   </html>
