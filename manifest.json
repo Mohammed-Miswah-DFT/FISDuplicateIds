@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "FIS Duplicate ID Checker",
     "version": "2.0",
-    "description": "Checks current page for duplicate IDs and generates a modern report",
+    "description": "Checks current page for duplicate IDs and generates a report",
     "permissions": ["activeTab", "scripting"],
     "action": {
       "default_popup": "popup.html"

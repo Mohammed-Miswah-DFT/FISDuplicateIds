@@ -13,7 +13,7 @@ document.getElementById("checkPage").addEventListener("click", async () => {
 document.getElementById('highlightIdButton').addEventListener('click', async () => {
   const elementId = document.getElementById('classInput').value.trim();
   if (!elementId) {
-    alert('Please enter a class name');
+    alert('Please enter a ID');
     return;
   }
 

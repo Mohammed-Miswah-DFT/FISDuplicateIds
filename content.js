@@ -40,7 +40,6 @@ function findDuplicateIds() {
     const count = elements.length;
   
     if (count == 0) {
-        alert(count);
         return 0;
     }
   
